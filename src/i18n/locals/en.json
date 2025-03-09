@@ -1,0 +1,31 @@
+{
+  "common": {
+    "cart": "Cart",
+    "checkout": "Checkout",
+    "login": "Login",
+    "register": "Register",
+    "search": "Search",
+    "menu": "Menu"
+  },
+  "nav": {
+    "home": "Home",
+    "vegetables": "Vegetables & Co.",
+    "wines": "Wines & Co.",
+    "about": "About Us",
+    "contact": "Contact"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "orders": "Orders",
+    "customers": "Customers",
+    "products": "Products",
+    "settings": "Settings",
+    "status": {
+      "new": "New",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  }
+}

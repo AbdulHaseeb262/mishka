@@ -1,0 +1,127 @@
+{
+  "common": {
+    "cart": "Warenkorb",
+    "checkout": "Zur Kasse",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "search": "Suchen",
+    "menu": "Menü",
+    "add_to_cart": "In den Warenkorb",
+    "total": "Gesamt",
+    "empty_cart": "Ihr Warenkorb ist leer",
+    "continue_shopping": "Weiter einkaufen",
+    "proceed_to_checkout": "Zur Kasse"
+  },
+  "nav": {
+    "home": "Startseite",
+    "vegetables": "Gemüse & Co.",
+    "wines": "Weine & Co.",
+    "about": "Über uns",
+    "contact": "Kontakt"
+  },
+  "home": {
+    "fresh": "Frisch",
+    "from": "vom",
+    "naschmarkt": "Naschmarkt",
+    "discover": "Entdecken Sie die Vielfalt unserer frischen Produkte",
+    "explore_vegetables": "Gemüse entdecken",
+    "explore_wines": "Weine entdecken"
+  },
+  "categories": {
+    "vegetables": "Gemüse & Co.",
+    "wines": "Weine & Co.",
+    "subcategories": {
+      "fresh": "Frischgemüse",
+      "root": "Wurzelgemüse",
+      "white_wine": "Weißwein",
+      "red_wine": "Rotwein"
+    }
+  },
+  "products": {
+    "vegetables": {
+      "tomatoes": {
+        "name": "Bio Tomaten",
+        "description": "Frische Bio-Tomaten aus regionalem Anbau"
+      },
+      "carrots": {
+        "name": "Bio Karotten",
+        "description": "Knackige Bio-Karotten aus Österreich"
+      },
+      "peppers": {
+        "name": "Bio Paprika",
+        "description": "Bunte Bio-Paprika aus dem Glashaus"
+      },
+      "cucumbers": {
+        "name": "Bio Gurken",
+        "description": "Knackfrische Bio-Gurken"
+      },
+      "potatoes": {
+        "name": "Bio Kartoffeln",
+        "description": "Erdige Bio-Kartoffeln aus dem Waldviertel"
+      },
+      "onions": {
+        "name": "Bio Zwiebeln",
+        "description": "Würzige Bio-Zwiebeln"
+      }
+    },
+    "wines": {
+      "gruner_veltliner": {
+        "name": "Grüner Veltliner Classic",
+        "description": "Klassischer österreichischer Weißwein"
+      },
+      "blaufraenkisch": {
+        "name": "Blaufränkisch Reserve",
+        "description": "Kräftiger Rotwein aus dem Burgenland"
+      },
+      "wiener_gemischter_satz": {
+        "name": "Wiener Gemischter Satz DAC",
+        "description": "Traditioneller Wiener Weißwein"
+      },
+      "zweigelt": {
+        "name": "Zweigelt Klassik",
+        "description": "Fruchtiger Rotwein aus Niederösterreich"
+      },
+      "riesling": {
+        "name": "Riesling Smaragd",
+        "description": "Eleganter Riesling aus der Wachau"
+      },
+      "sankt_laurent": {
+        "name": "Sankt Laurent Reserve",
+        "description": "Vollmundiger Rotwein"
+      }
+    }
+  },
+  "auth": {
+    "sign_in": "Anmelden",
+    "sign_up": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirm_password": "Passwort bestätigen",
+    "forgot_password": "Passwort vergessen?",
+    "no_account": "Noch kein Konto?",
+    "have_account": "Bereits ein Konto?",
+    "create_account": "Konto erstellen",
+    "or": "oder",
+    "continue_with": "Weiter mit",
+    "errors": {
+      "invalid_email": "Ungültige E-Mail-Adresse",
+      "required_field": "Dieses Feld ist erforderlich",
+      "password_mismatch": "Passwörter stimmen nicht überein",
+      "min_password": "Passwort muss mindestens 6 Zeichen lang sein"
+    }
+  },
+  "admin": {
+    "title": "Admin-Bereich",
+    "orders": "Bestellungen",
+    "customers": "Kunden",
+    "products": "Produkte",
+    "settings": "Einstellungen",
+    "status": {
+      "new": "Neu",
+      "processing": "In Bearbeitung",
+      "shipped": "Versendet",
+      "delivered": "Geliefert",
+      "cancelled": "Storniert"
+    }
+  }
+}

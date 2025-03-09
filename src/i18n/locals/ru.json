@@ -1,0 +1,31 @@
+{
+  "common": {
+    "cart": "Корзина",
+    "checkout": "Оформить заказ",
+    "login": "Войти",
+    "register": "Регистрация",
+    "search": "Поиск",
+    "menu": "Меню"
+  },
+  "nav": {
+    "home": "Главная",
+    "vegetables": "Овощи и др.",
+    "wines": "Вина и др.",
+    "about": "О нас",
+    "contact": "Контакты"
+  },
+  "admin": {
+    "title": "Панель администратора",
+    "orders": "Заказы",
+    "customers": "Клиенты",
+    "products": "Товары",
+    "settings": "Настройки",
+    "status": {
+      "new": "Новый",
+      "processing": "В обработке",
+      "shipped": "Отправлен",
+      "delivered": "Доставлен",
+      "cancelled": "Отменён"
+    }
+  }
+}
