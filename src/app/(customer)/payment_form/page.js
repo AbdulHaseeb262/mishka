@@ -1,6 +1,6 @@
 "use client";
 
-import PaymentForm from "../../components/PaymentForm";
+import PaymentForm from "../../../components/PaymentForm";
 
 export default function CheckoutPage() {
   const totalAmount = 100; // Replace with your actual total amount
@@ -11,9 +11,7 @@ export default function CheckoutPage() {
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <h2 className="text-2xl font-bold mb-6">Checkout</h2>
           <div className="space-y-6">
-            <p className="text-lg">
-              Total Amount: ${totalAmount}
-            </p>
+            <p className="text-lg">Total Amount: ${totalAmount}</p>
             <PaymentForm totalAmount={totalAmount} />
           </div>
         </div>
