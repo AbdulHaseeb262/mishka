@@ -1,33 +1,51 @@
 import nextConnect from "next-connect";
+import { NextResponse } from "next/server";
 import multer from "multer";
-import cloudinary from "../../../lib/cloudinary";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-const apiRoute = nextConnect({
-  onError(error, req, res) {
-    res.status(501).json({ error: `Error: ${error.message}` });
+const handler = nextConnect({
+  onError: (err, req, res) => {
+    return NextResponse.json(
+      { error: `Server error: ${err.message}` },
+      { status: 500 }
+    );
   },
-  onNoMatch(req, res) {
-    res.status(405).json({ error: `Method ${req.method} not allowed` });
+  onNoMatch: (req, res) => {
+    return NextResponse.json(
+      { error: `Method ${req.method} not allowed` },
+      { status: 405 }
+    );
   },
 });
 
-apiRoute.use(upload.single("file"));
+handler.use(upload.single("file"));
 
-apiRoute.post(async (req, res) => {
+export async function POST(request) {
   try {
+    const req = request;
+    const res = {
+      json: (data) => NextResponse.json(data),
+      status: (code) => ({
+        json: (data) => NextResponse.json(data, { status: code }),
+      }),
+    };
+
+    await handler.run(req, res);
+
     const fileBuffer = req.file.buffer.toString("base64");
     const uploadResponse = await cloudinary.uploader.upload(
       `data:${req.file.mimetype};base64,${fileBuffer}`
     );
-    res.status(200).json({ url: uploadResponse.secure_url });
-  } catch (error) {
-    res.status(500).json({ error: "Upload failed" });
-  }
-});
 
-export default apiRoute;
+    return NextResponse.json({ url: uploadResponse.secure_url });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message || "Upload failed" },
+      { status: 500 }
+    );
+  }
+}
 
 export const config = {
   api: {
