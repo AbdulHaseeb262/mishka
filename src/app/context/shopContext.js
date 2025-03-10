@@ -1,6 +1,5 @@
-// src/app/context/ShopContext.js
 "use client";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export const ShopContext = createContext();
@@ -112,5 +111,7 @@ const ShopProvider = ({ children }) => {
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 };
+
+export const useShopContext = () => useContext(ShopContext);
 
 export default ShopProvider;
