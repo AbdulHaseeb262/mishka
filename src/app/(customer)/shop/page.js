@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import ThemeToggle from "../../../components/ThemeToggle";
+
 import CategorySection from "../../../components/CategorySelection";
 import { useEffect, useState } from "react";
 
@@ -61,7 +61,7 @@ export default function HomePage() {
       <CategorySection category="obst" title="Saftiges Obst" />
       {/* Weine Section */}
       <CategorySection category="weine" title="Weine & Co." />
-      <ThemeToggle />
+      {/*   <ThemeToggle /> */}
     </>
   );
 }

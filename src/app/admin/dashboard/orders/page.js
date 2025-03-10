@@ -88,7 +88,7 @@ export default function OrdersPage() {
                 <select
                   value={order.status}
                   onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                  className="bg-white/10 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00ff88]"
+                  className="bg-gray-900 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
                   {[
                     "new",

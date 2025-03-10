@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function menu() {
+export default function Menu() {
   return (
     <section className="bg-white min-h-screen overflow-hidden">
       {/* top pics */}
@@ -25,25 +25,22 @@ export default function menu() {
       </div>
 
       {/* Menu */}
-      <div className="flex flex-col justify-center items-center pt-24 gap-16">
-        <h1 className="font-bold text-black text-7xl">MENÜ</h1>
-        <div className="bg-[#EB7A37] relative w-[700px] h-[700px] rounded-3xl">
-          {/* <Image
-            src="/path/to/your/image.jpg"
-            alt="Sample Image"
+      <div className="flex flex-col justify-center items-center pt-24 gap-16 px-4">
+        <h1 className="font-bold text-black text-4xl md:text-7xl">MENÜ</h1>
+        <div className="relative w-full max-w-[700px] h-auto aspect-square">
+          <Image
+            src="/menu.jpg" // please change this image file FOR MENU HERE
+            alt="Menu Preview"
             layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
-          /> */}
+            objectFit="contain"
+            className="rounded-3xl shadow-xl"
+          />
         </div>
-        <button className="bg-[#EB7A37] text-white px-8 py-2 rounded-full text-lg tracking-wide">
-          Download
-        </button>
       </div>
 
       {/* bottom pics */}
       <div
-        className="relative w-full h-[700px] "
+        className="relative w-full h-[300px] md:h-[700px] mt-16"
         style={{
           backgroundImage: "url('/Foto 13.png')",
           backgroundSize: "cover",

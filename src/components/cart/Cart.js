@@ -5,13 +5,14 @@ import { ShopContext } from "../../app/context/shopContext";
 import { X } from "lucide-react";
 import CartTotal from "./CartTotal";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 
 const Cart = ({ isCartOpen, setIsCartOpen }) => {
   const { cartItems, products, updateQuantity, currency } =
     useContext(ShopContext);
   const router = useRouter();
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
- 
   const cartData = Object.keys(cartItems).map((id) => ({
     id,
     quantity: cartItems[id],
@@ -104,30 +105,36 @@ const Cart = ({ isCartOpen, setIsCartOpen }) => {
         )}
         {/* <CartTotal /> */}
         <button
-  onClick={() => {
-    const totalPrice = cartData.reduce((total, item) => {
-      const productData = products.find(
-        (product) => String(product._id) === String(item.id)
-      );
-      return total + (productData ? productData.price * item.quantity : 0);
-    }, 0);
+          onClick={() => {
+            const totalPrice = cartData.reduce((total, item) => {
+              const productData = products.find(
+                (product) => String(product._id) === String(item.id)
+              );
+              return (
+                total + (productData ? productData.price * item.quantity : 0)
+              );
+            }, 0);
 
-    if (totalPrice < 50) {
-      alert("Minimum 50 euros to checkout");
-      return;
-    }
+            if (totalPrice < 50) {
+              alert("Minimum 50 euros to checkout");
+              return;
+            }
+            if (!isLoggedIn) {
+              alert("login to checkout");
+              router.push("/login");
+              return;
+            }
 
-    setIsCartOpen(false);
-    router.push("/checkout");
-  }}
-  className="bg-black text-white text-center text-lg my-4 px-8 py-3 rounded-full w-full hover:bg-gray-900"
->
-  ZUR KASSE
-</button>
-
+            setIsCartOpen(false);
+            router.push("/checkout");
+          }}
+          className="bg-black text-white text-center text-lg my-4 px-8 py-3 rounded-full w-full hover:bg-gray-900"
+        >
+          ZUR KASSE
+        </button>
       </div>
       <div
-        className="w-2/3 bg-black opacity-50"
+        className="w-2/3 bg-black md:opacity-50"
         onClick={() => setIsCartOpen(false)}
       />
     </div>

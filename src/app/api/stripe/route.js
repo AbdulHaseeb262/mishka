@@ -101,22 +101,73 @@
 // }
 
 
+// import stripe from "../../../lib/stripeClient";
+
+// export async function POST(req) {
+//   console.log("yes this stripe will run");
+//   console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY);
+//   console.log("public key:", process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+//   try {
+//     const { items, orderId , tobepaid } = await req.json();
+//     console.log(tobepaid)
+//     console.log(typeof(tobepaid))
+//     const unitAmount = Math.round(tobepaid * 100);
+//     const line_items = items.map((item) => ({
+//       price_data: {
+//         currency: "eur",
+//         product_data: { name: item.name },
+//         unit_amount: Math.round(item.price * 100), // Convert to cents
+      
+//       },
+//       quantity: item.quantity,
+//     }));
+
+//     console.log("Line Items:", JSON.stringify(line_items, null, 2));
+
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ["card"],
+//       line_items,
+//       mode: "payment",
+//       success_url: `${req.headers.get("origin")}/checkout-successful/${orderId}`, // Include orderId in success URL
+//       cancel_url: `${req.headers.get("origin")}/checkout/cancel`,
+//     });
+
+//     console.log("Stripe Checkout Session Created:", session.id);
+
+//     return new Response(JSON.stringify({ url: session.url }), { status: 200 });
+//   } catch (error) {
+//     console.error("Stripe Error:", error);
+//     return new Response(JSON.stringify({ error: error.message }), {
+//       status: 500,
+//     });
+//   }
+// }
+
+
 import stripe from "../../../lib/stripeClient";
 
 export async function POST(req) {
   console.log("yes this stripe will run");
   console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY);
   console.log("public key:", process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+
   try {
-    const { items, orderId } = await req.json();
-    const line_items = items.map((item) => ({
-      price_data: {
-        currency: "eur",
-        product_data: { name: item.name },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
+    const { items, orderId, tobepaid } = await req.json();
+    console.log("Total Amount to be Paid:", tobepaid);
+    console.log("Type of tobepaid:", typeof tobepaid);
+
+    const totalAmount = Math.round(tobepaid * 100); // Convert total amount to cents
+
+    const line_items = [
+      {
+        price_data: {
+          currency: "eur",
+          product_data: { name: "Total Order Payment" }, // Generic name for full order
+          unit_amount: totalAmount, // Charge total cost here
+        },
+        quantity: 1, // Single charge for total order
       },
-      quantity: item.quantity,
-    }));
+    ];
 
     console.log("Line Items:", JSON.stringify(line_items, null, 2));
 
