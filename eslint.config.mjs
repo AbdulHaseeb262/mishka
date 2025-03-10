@@ -11,4 +11,9 @@ const compat = new FlatCompat({
 
 const eslintConfig = [...compat.extends("next/core-web-vitals")];
 
-export default eslintConfig;
+// Filter out any function values (like "parse")
+const filteredConfig = eslintConfig.map((config) => {
+  return JSON.parse(JSON.stringify(config)); // Removes non-serializable values
+});
+
+export default filteredConfig;

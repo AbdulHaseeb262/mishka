@@ -1,4 +1,4 @@
-import { nextConnect } from "next-connect";
+import nextConnect from "next-connect";
 import multer from "multer";
 import cloudinary from "../../../lib/cloudinary";
 
