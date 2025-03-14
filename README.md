@@ -1,3 +1,33 @@
+E-commerce Website - README
+
+Database Admin Access
+
+To access the database admin panel, please provide your email address to me.
+
+Do not share sensitive credentials directly on Fiverr.
+
+Instead, send them inside a password-protected ZIP folder for security reasons.
+
+Mailgun Configuration
+
+For email functionality, you need to configure Mailgun with your own credentials.
+Follow these steps:
+
+Obtain a domain – You must have a verified domain to send emails.
+
+Replace the placeholders in the .env file with your actual Mailgun API key, domain, and email address.
+
+Example Configuration:
+
+MAILGUN_API_KEY=your_mailgun_api_key
+MAILGUN_DOMAIN=your_mailgun_domain
+EMAIL_FROM=your_business_email@example.com
+FRONTEND_URL=your_live_website_url
+
+Important: Without a valid Mailgun domain, emails cannot be sent successfully.
+
+Thank you!
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

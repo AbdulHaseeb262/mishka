@@ -4,12 +4,13 @@ import { authenticate } from "../../../../lib/auth/middleware";
 
 // PUT /api/orders/:id - Update an existing order (e.g., update status or other details)
 export async function PUT(req, { params }) {
-  console.log("hn ye chala")
+  console.log("going to be update");
+
   try {
     await connectToDatabase();
     await authenticate(req); // Protect route for admin access
 
-    const { id } = params;
+    const { id } = await params;
     // Extract order ID from URL
     // const data = await req.json(); // Get the updated data from the request body
 

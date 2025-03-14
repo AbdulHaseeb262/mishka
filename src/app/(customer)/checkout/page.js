@@ -1,14 +1,28 @@
-
-
-
 "use client";
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CreditCard, Clock, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { addDays, isBefore, isSameDay } from "date-fns";
 import { ShopContext } from "../../../app/context/shopContext";
+import { useAuth } from "@/app/context/AuthContext";
+
+const AUSTRIAN_HOLIDAYS = [
+  "2025-01-01",
+  "2025-01-06",
+  "2025-04-20",
+  "2025-05-01",
+  "2025-12-25",
+].map((date) => new Date(date));
+
+const isValidDeliveryDate = (date) => {
+  const today = new Date();
+  if (isBefore(date, addDays(today, 1)) || isSameDay(date, today)) return false;
+  if (date.getDay() === 0) return false;
+  return !AUSTRIAN_HOLIDAYS.some((holiday) => isSameDay(date, holiday));
+};
 
 const getAvailableDeliveryDates = () => {
   const dates = [];
@@ -16,10 +30,7 @@ const getAvailableDeliveryDates = () => {
   for (let i = 1; i <= 14; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
-    // Skip Sundays (0 = Sunday)
-    if (date.getDay() !== 0) {
-      dates.push(date);
-    }
+    if (date.getDay() !== 0) dates.push(date);
   }
   return dates;
 };
@@ -33,21 +44,15 @@ const getAvailableDeliveryTimes = () => {
 };
 
 export default function CheckoutPage() {
-  const {
-    products,
-    cartItems,
-    getCartAmount,
-    delivery_fee,
-    currency,
-    updateQuantity,
-    clearCart,
-  } = useContext(ShopContext);
+  const { products, cartItems, getCartAmount, currency } =
+    useContext(ShopContext);
+  const { userEmail } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
+    email: userEmail || "",
     phone: "",
     street: "",
     city: "",
@@ -58,95 +63,87 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, email: userEmail || "" }));
+  }, [userEmail]);
+
   const subtotal = getCartAmount();
   const shippingCost = subtotal >= 100 ? 0 : 5;
   const totalWithShipping = Math.round((subtotal + shippingCost) * 100) / 100;
-  const twentypercent = Math.round((totalWithShipping * 0.2) * 100) / 100;
-  const totaltobepaid = Math.round((totalWithShipping + twentypercent)*100)/100;
+  const twentypercent = Math.round(totalWithShipping * 0.2 * 100) / 100;
+  const totaltobepaid =
+    Math.round((totalWithShipping + twentypercent) * 100) / 100;
 
   const availableDates = getAvailableDeliveryDates();
   const availableTimes = getAvailableDeliveryTimes();
 
-  const isWeekday = (date) => date.getDay() !== 0;
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "phone") {
+      const numbersOnly = value.replace(/[^0-9]/g, "");
+      setFormData((prev) => ({ ...prev, [name]: numbersOnly }));
+    } else if (name === "city") {
+      // Remove any numbers from the city input
+      const lettersOnly = value.replace(/[0-9]/g, "");
+      setFormData((prev) => ({ ...prev, [name]: lettersOnly }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     setError(null);
   };
 
-  // const handleCheckout = async () => {
-  //   if (!deliveryDate || !formData.deliveryTime) {
-  //     setError("Bitte wählen Sie ein Lieferdatum und eine Lieferzeit aus.");
-  //     return;
-  //   }
-  //   setIsProcessing(true);
-  //   setError(null);
+  const validateForm = () => {
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "street",
+      "city",
+      "postalCode",
+    ];
 
-  //   try {
-  //     const formattedDate = deliveryDate.toISOString();
+    const missingFields = requiredFields.filter(
+      (field) => !formData[field].trim()
+    );
 
-  //     // Prepare items with imageUrl
-  //     const items = Object.keys(cartItems).map((id) => {
-  //       const product = products.find((product) => product._id === id);
-  //       return {
-  //         productId: product._id,
-  //         name: product.name,
-  //         quantity: cartItems[id],
-  //         price: product.price,
-  //         Url: product.imageUrl, // Include imageUrl
-  //       };
-  //     });
+    if (missingFields.length > 0) {
+      setError("Bitte füllen Sie alle erforderlichen Felder aus.");
+      return false;
+    }
 
-  //     console.log(items);
+    if (!deliveryDate) {
+      setError("Bitte wählen Sie ein Lieferdatum aus.");
+      return false;
+    }
 
-  //     // Create Order Record in Backend
-  //     const orderResponse = await fetch("/api/orders", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         customerName: `${formData.firstName} ${formData.lastName}`,
-  //         customerEmail: formData.email,
-  //         address: `${formData.street}, ${formData.postalCode} ${formData.city}`,
-  //         deliveryDate: formattedDate,
-  //         deliveryTime: formData.deliveryTime,
-  //         items: items,
-  //         total: totalWithShipping,
-  //       }),
-  //     });
+    if (!formData.deliveryTime) {
+      setError("Bitte wählen Sie eine Lieferzeit aus.");
+      return false;
+    }
 
-  //     if (!orderResponse.ok) {
-  //       const errData = await orderResponse.json();
-  //       throw new Error(errData.error || "Order creation failed");
-  //     }
+    if (!/^\d+$/.test(formData.phone)) {
+      setError("Ungültige Telefonnummer (nur Zahlen erlaubt)");
+      return false;
+    }
 
-  //     clearCart();
-  //     const orderData = await orderResponse.json();
-  //           const orderId = orderData._id;
-      
-  //           router.push(`/order-confirmation/${orderId}`);
-  //     // router.push("/order-confirmation");
-  //   } catch (err) {
-  //     setError(
-  //       err instanceof Error ? err.message : "Ein Fehler ist aufgetreten"
-  //     );
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // };
+    return true;
+  };
 
   const handleCheckout = async () => {
-    if (!deliveryDate || !formData.deliveryTime) {
-      setError("Bitte wählen Sie ein Lieferdatum und eine Lieferzeit aus.");
+    if (!validateForm()) return;
+    if (subtotal === 0) {
+      alert("Warenkorb ist leer");
       return;
     }
+
     setIsProcessing(true);
     setError(null);
-  
+
     try {
       const formattedDate = deliveryDate.toISOString();
-  
-      // Prepare items with imageUrl
       const items = Object.keys(cartItems).map((id) => {
         const product = products.find((product) => product._id === id);
         return {
@@ -154,13 +151,10 @@ export default function CheckoutPage() {
           name: product.name,
           quantity: cartItems[id],
           price: product.price,
-          Url: product.imageUrl, // Include imageUrl
+          Url: product.imageUrl,
         };
       });
-  
-      console.log(items);
-  
-      // Create Order Record in Backend (without payment status)
+
       const orderResponse = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -171,47 +165,43 @@ export default function CheckoutPage() {
           deliveryDate: formattedDate,
           deliveryTime: formData.deliveryTime,
           items: items,
-          total: totalWithShipping,
-          paymentMethod: "Stripe", // Indicate payment method
-          paymentStatus: "pending", // Initial payment status
+          total: totaltobepaid,
+          paymentMethod: "Stripe",
+          paymentStatus: "pending",
+          phonenumber: formData.phone,
         }),
       });
-  
+
       if (!orderResponse.ok) {
         const errData = await orderResponse.json();
         throw new Error(errData.error || "Order creation failed");
       }
-  
+
       const orderData = await orderResponse.json();
       const orderId = orderData._id;
-  
-      // Prepare items for Stripe Checkout
-      const stripeItems = items.map((item) => ({
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-      }));
-  
-      // Create Stripe Checkout Session
+
       const stripeResponse = await fetch("/api/stripe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: stripeItems,
-          orderId: orderId, // Pass orderId to Stripe API
+          items: items.map((item) => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+          orderId: orderId,
+          shipping: shippingCost,
+          twenty: twentypercent,
+          tobepaid: totaltobepaid,
         }),
       });
-  
+
       if (!stripeResponse.ok) {
         throw new Error("Failed to create Stripe checkout session");
       }
-  
+
       const { url } = await stripeResponse.json();
-  
-      // Redirect to Stripe Checkout
-      if (url) {
-        window.location.href = url;
-      }
+      if (url) window.location.href = url;
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ein Fehler ist aufgetreten"
@@ -220,7 +210,7 @@ export default function CheckoutPage() {
       setIsProcessing(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-[#F1E4D5] text-black relative">
       <div
@@ -228,8 +218,6 @@ export default function CheckoutPage() {
         style={{ backgroundImage: "url('/Muster.png')" }}
       ></div>
       <div className="container mx-auto px-4 py-40 relative z-10">
-        {/* <h2 className="text-2xl font-bold mb-6">Checkout</h2> */}
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -240,7 +228,6 @@ export default function CheckoutPage() {
                 </div>
               )}
               <div className="space-y-6">
-                {/* Personal Information */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium mb-2">
@@ -293,6 +280,8 @@ export default function CheckoutPage() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 rounded-3xl bg-[#F1E4D5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
+                    pattern="[0-9]*"
+                    inputMode="numeric"
                   />
                 </div>
                 <div>
@@ -331,12 +320,12 @@ export default function CheckoutPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
+                      /*   pattern="[A-Za-a\s]+" */
                       className="w-full px-4 py-2 rounded-3xl bg-[#F1E4D5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       required
                     />
                   </div>
                 </div>
-                {/* Delivery Date and Time */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium mb-2">
@@ -346,7 +335,7 @@ export default function CheckoutPage() {
                     <DatePicker
                       selected={deliveryDate}
                       onChange={(date) => setDeliveryDate(date)}
-                      filterDate={isWeekday}
+                      filterDate={isValidDeliveryDate}
                       placeholderText="Bitte wählen"
                       className="min-w-full px-4 py-2 rounded-full bg-[#F1E4D5] text-black focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       dateFormat="P"
@@ -410,17 +399,16 @@ export default function CheckoutPage() {
                       <p>{product.name}</p>
                       <p className="tracking-wider">
                         {cartItems[id]}x {currency}
-                         {(product.price * cartItems[id]).toFixed(2)}
+                        {(product.price * cartItems[id]).toFixed(2)}
                       </p>
                     </div>
                   );
                 })}
-
                 <hr className="border border-gray-400" />
                 <div className="flex justify-between text-xl">
                   <p>Zwischensumme</p>
                   <p>
-                  {currency} {subtotal.toFixed(2)}
+                    {currency} {subtotal.toFixed(2)}
                   </p>
                 </div>
                 <div className="flex justify-between text-xl">
@@ -429,19 +417,17 @@ export default function CheckoutPage() {
                     {currency} {shippingCost}
                   </p>
                 </div>
-                  <div className="flex justify-between text-xl">
-                   <p>MwSt</p>
-                   <p>
-                     {currency} {twentypercent}
-                   </p>
-             </div>
+                <div className="flex justify-between text-xl">
+                  <p>20% MwSt</p>
+                  <p>
+                    {currency} {twentypercent}
+                  </p>
+                </div>
                 <div className="flex justify-between font-extrabold text-lg mt-2 text-green-500">
                   <p>Total</p>
                   <p>
                     {currency} {totaltobepaid}
                   </p>
-
-                  
                 </div>
               </div>
             </div>

@@ -18,7 +18,6 @@
 
 //     console.log("Line Items:", JSON.stringify(line_items, null, 2));
 
-
 //     const session = await stripe.checkout.sessions.create({
 //       payment_method_types: ["card"],
 //       line_items,
@@ -36,8 +35,6 @@
 //     });
 //   }
 // }
-
-
 
 //new route
 // import Stripe from "stripe";
@@ -100,6 +97,101 @@
 //   }
 // }
 
+// import stripe from "../../../lib/stripeClient";
+
+// export async function POST(req) {
+//   console.log("yes this stripe will run");
+//   console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY);
+//   console.log("public key:", process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+//   try {
+//     const { items, orderId , tobepaid } = await req.json();
+//     console.log(tobepaid)
+//     console.log(typeof(tobepaid))
+//     const unitAmount = Math.round(tobepaid * 100);
+//     const line_items = items.map((item) => ({
+//       price_data: {
+//         currency: "eur",
+//         product_data: { name: item.name },
+//
+
+//       },
+//       quantity: item.quantity,
+//     }));
+
+//     console.log("Line Items:", JSON.stringify(line_items, null, 2));
+
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ["card"],
+//       line_items,
+//       mode: "payment",
+//       success_url: `${req.headers.get("origin")}/checkout-successful/${orderId}`, // Include orderId in success URL
+//       cancel_url: `${req.headers.get("origin")}/checkout/cancel`,
+//     });
+
+//     console.log("Stripe Checkout Session Created:", session.id);
+
+//     return new Response(JSON.stringify({ url: session.url }), { status: 200 });
+//   } catch (error) {
+//     console.error("Stripe Error:", error);
+//     return new Response(JSON.stringify({ error: error.message }), {
+//       status: 500,
+//     });
+//   }
+// }
+
+// import stripe from "../../../lib/stripeClient";
+
+// export async function POST(req) {
+//   console.log("yes this stripe will run");
+//   console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY);
+//   console.log("public key:", process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+
+//   try {
+//     const { items, orderId, tobepaid } = await req.json();
+//     console.log(items);
+//     console.log("Total Amount to be Paid:", tobepaid);
+//     console.log("Type of tobepaid:", typeof tobepaid);
+
+//     const totalAmount = Math.round(tobepaid * 100); // Convert total amount to cents
+
+//     const myitems = items.map((item) => ({
+//       //
+//       product_data: { name: item.name },
+//             quantity: item.quantity,
+//           }));
+
+//     const line_items = [
+//       {
+//         price_data: {
+//           currency: "eur",
+//           product_data: { name: "Total Order Payment" }, // Generic name for full order
+//           unit_amount: totalAmount, // Charge total cost here
+//         },
+//         quantity: 1, // Single charge for total order
+//       },
+//     ];
+
+//     console.log("Line Items:", JSON.stringify(line_items, null, 2));
+
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ["card"],
+//       line_items,
+
+//       mode: "payment",
+//       success_url: `${req.headers.get("origin")}/checkout-successful/${orderId}`, // Include orderId in success URL
+//       cancel_url: `${req.headers.get("origin")}/checkout/cancel`,
+//     });
+
+//     console.log("Stripe Checkout Session Created:", session.id);
+
+//     return new Response(JSON.stringify({ url: session.url }), { status: 200 });
+//   } catch (error) {
+//     console.error("Stripe Error:", error);
+//     return new Response(JSON.stringify({ error: error.message }), {
+//       status: 500,
+//     });
+//   }
+// }
 
 import stripe from "../../../lib/stripeClient";
 
@@ -107,16 +199,54 @@ export async function POST(req) {
   console.log("yes this stripe will run");
   console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_KEY);
   console.log("public key:", process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+
   try {
-    const { items, orderId } = await req.json();
+    const { items, orderId, tobepaid, shipping, twenty } = await req.json();
+    console.log("shipping cost", shipping);
+    console.log("cost MESD", twenty);
+
+    console.log(items);
+    console.log("Total Amount to be Paid:", tobepaid);
+    console.log("Type of tobepaid:", typeof tobepaid);
+
+    const totalAmount = Math.round(tobepaid * 100); // Convert to cents
+    const totalshipping = Math.round(shipping * 100); // Convert to cents
+    const twentypercent = Math.round(twenty * 100); // Convert to cents
+
+    // Create line items for display (names & quantities only, no price)
     const line_items = items.map((item) => ({
       price_data: {
         currency: "eur",
-        product_data: { name: item.name },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
+        product_data: {
+          name: item.name, // Display product name
+        },
+        unit_amount: Math.round(item.price * 100), // Dummy amount (Stripe requires a value, but it won't matter)
       },
       quantity: item.quantity,
+      // Display quantity correctly
     }));
+
+    // Add a single "Total Order Payment" item with the actual total amount
+    line_items.push({
+      price_data: {
+        currency: "eur",
+        product_data: {
+          name: "Versandkosten", // Shows the final total
+        },
+        unit_amount: totalshipping, // Correct total charge
+      },
+      quantity: 1, // Charge as a single total order
+    });
+    line_items.push({
+      price_data: {
+        currency: "eur",
+        product_data: {
+          name: "20% MwSt", // Shows the final total
+        },
+        unit_amount: twentypercent, // Correct total charge
+      },
+      quantity: 1, // Charge as a single total order
+    });
 
     console.log("Line Items:", JSON.stringify(line_items, null, 2));
 
@@ -124,7 +254,9 @@ export async function POST(req) {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/checkout-successful/${orderId}`, // Include orderId in success URL
+      success_url: `${req.headers.get(
+        "origin"
+      )}/checkout-successful/${orderId}`,
       cancel_url: `${req.headers.get("origin")}/checkout/cancel`,
     });
 

@@ -12,7 +12,6 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  // State flag to determine if an order has been placed
   const [hasOrdered, setHasOrdered] = useState(false);
 
   const { getCartCount } = useContext(ShopContext);
@@ -31,19 +30,15 @@ export default function Header() {
   const logout = () => {
     localStorage.removeItem("customerToken");
     localStorage.removeItem("customerEmail");
-    // Optionally clear the order flag on logout if desired:
-    // localStorage.removeItem("hasOrdered");
     setIsLoggedIn(false);
     router.push("/login");
   };
 
-  // On mount, check for the "hasOrdered" flag from localStorage
   useEffect(() => {
     const orderFlag = localStorage.getItem("hasOrdered");
     setHasOrdered(orderFlag === "true");
   }, []);
 
-  // Close profile dropdown when clicking outside
   useEffect(() => {
     const closeDropdown = (e) => {
       if (!e.target.closest(".profile-dropdown")) {
@@ -55,10 +50,9 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-[#2a2a2a] text-white">
+    <header className="bg-[#2a2a2a] text-white sticky top-0 z-50">
       {/* Desktop Header */}
       <div className="hidden md:flex items-center justify-between px-4 py-3">
-        {/* Logo on extreme left */}
         <div className="logo">
           <Link href="/">
             <Image
@@ -72,7 +66,6 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Navigation Links */}
         <nav className="flex items-center space-x-8">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href}>
@@ -87,9 +80,7 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Right-side: Profile and Cart */}
         <div className="flex items-center space-x-4">
-          {/* Profile Icon / Login */}
           <div className="relative profile-dropdown">
             {isLoggedIn ? (
               <button
@@ -110,7 +101,6 @@ export default function Header() {
               </Link>
             )}
 
-            {/* Desktop Profile Dropdown */}
             {isProfileOpen && isLoggedIn && (
               <div className="absolute right-0 mt-2 w-40 bg-gray-800 rounded-md shadow-lg z-50">
                 <Link
@@ -139,7 +129,6 @@ export default function Header() {
             )}
           </div>
 
-          {/* Cart Icon */}
           <button
             onClick={() => setIsCartOpen(true)}
             className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -156,7 +145,6 @@ export default function Header() {
 
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between px-4 py-3 relative">
-        {/* Hamburger on extreme left */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -164,7 +152,6 @@ export default function Header() {
           <Menu className="h-6 w-6" />
         </button>
 
-        {/* Centered Logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <Link href="/">
             <Image
@@ -178,7 +165,6 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Profile Icon on extreme right */}
         <div className="relative profile-dropdown">
           {isLoggedIn ? (
             <button
@@ -199,7 +185,6 @@ export default function Header() {
             </Link>
           )}
 
-          {/* Mobile Profile Dropdown */}
           {isProfileOpen && isLoggedIn && (
             <div className="absolute right-0 mt-2 w-40 bg-gray-800 rounded-md shadow-lg z-50">
               <Link
@@ -224,7 +209,6 @@ export default function Header() {
               >
                 Logout
               </button>
-              {/* "View My Cart" Option */}
               <button
                 onClick={() => {
                   setIsProfileOpen(false);

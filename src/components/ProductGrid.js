@@ -6,6 +6,8 @@ import { useContext } from "react";
 import { ShopContext } from "../app/context/shopContext";
 import { ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProductGrid = ({ products }) => {
   const { addToCart } = useContext(ShopContext);
@@ -43,11 +45,15 @@ const ProductGrid = ({ products }) => {
                   onClick={() => {
                     console.log("Adding item:", productId);
                     addToCart(productId);
+                    toast.success("Artikel wurde dem Warenkorb hinzugefügt", {
+                      position: "top-right",
+                      autoClose: 3000,
+                      });
                   }}
                   className="flex items-center space-x-2 bg-emerald-500 text-white px-4 py-2 rounded-full hover:bg-emerald-600 transition-all duration-300"
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  <span>{t("add_to_cart")}</span>
+                  {/* <span>{t("add_to_cart")}</span> */}
                 </button>
               </div>
             </div>

@@ -6,6 +6,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
 
   const fetchOrders = async () => {
     const token = localStorage.getItem("adminToken");
@@ -48,22 +49,38 @@ export default function OrdersPage() {
     }
   };
 
+  // Filter orders based on search term
+  const filteredOrders = orders.filter((order) =>
+    order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) return <p>Loading orders...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 gradient-text">Orders</h1>
-      {orders.length === 0 ? (
+
+      {/* Search Bar */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search by customer email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+        />
+      </div>
+
+      {filteredOrders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
         <div className="space-y-6">
-          {orders.map((order) => (
+          {filteredOrders.map((order) => (
             <div key={order._id} className="glass-card p-6 rounded-xl">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-semibold mb-2">
-                    {/* Order #{order._id.slice(0, 8)} */}
                     Order #{order._id}
                   </h3>
                   <p className="text-gray-400">
@@ -84,11 +101,17 @@ export default function OrdersPage() {
                   <p className="mt-2">
                     <strong>Payment Status:</strong> {order.paymentStatus}
                   </p>
+                  <p className="mt-2">
+                    <strong>Phone number:</strong> {order.phonenumber}
+                  </p>
+                  <p className="mt-2">
+                    <strong>Status:</strong> {order.status}
+                  </p>
                 </div>
                 <select
                   value={order.status}
                   onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                  className="bg-white/10 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00ff88]"
+                  className="bg-gray-900 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
                   {[
                     "new",
@@ -126,9 +149,6 @@ export default function OrdersPage() {
                     className="flex justify-between items-center text-gray-300 mb-2"
                   >
                     <div className="flex items-center">
-                      {console.log(
-                        "immmmmmmmmmaaaaaaaaaggggggeeee " + item.imageUrl
-                      )}
                       <img
                         src={item.Url}
                         alt={item.name}

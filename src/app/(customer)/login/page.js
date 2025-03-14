@@ -13,11 +13,25 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [isPasswordValid, setIsPasswordValid] = useState(true); // State for password validation
+
+  // Function to validate password
+  const validatePassword = (password) => {
+    const minLength = 8;
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return password.length >= minLength && hasSpecialChar;
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setError("");
     setMessage("");
+
+    // Validate password in signup mode
+    if (mode === "signup" && !validatePassword(password)) {
+      setIsPasswordValid(false);
+      return;
+    }
 
     let endpoint;
     let payload;
@@ -106,20 +120,30 @@ export default function AuthPage() {
           />
         </div>
         {mode !== "reset" && (
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block mb-2">Password</label>
             <input
               type="password"
               className="w-full p-2 rounded-3xl pl-4 bg-[#F1E4D5] text-black"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setIsPasswordValid(validatePassword(e.target.value)); // Validate password on change
+              }}
               required
             />
+            {mode === "signup" && !isPasswordValid && (
+              <p className="text-red-600 text-sm mt-1">
+                Password must be at least 8 characters long and contain a special
+                character.
+              </p>
+            )}
           </div>
         )}
         <button
           type="submit"
-          className="w-full bg-black text-white p-2 rounded-full font-bold hover:bg-gray-900"
+          className="w-full bg-black text-white p-2 rounded-full font-bold hover:bg-gray-900 disabled:opacity-50"
+          disabled={mode === "signup" && !isPasswordValid} // Disable button if password is invalid
         >
           {mode === "login"
             ? "Login"

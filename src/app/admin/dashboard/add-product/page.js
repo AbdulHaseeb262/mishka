@@ -3,6 +3,31 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Static products data (you can move this to a separate file and import it)
+const productsData = [
+  // Gemüse
+  { category: "gemüse", subcategory: "frischgemüse" },
+  { category: "gemüse", subcategory: "wurzelgemüse" },
+  // Weine
+  { category: "weine", subcategory: "weißwein" },
+  { category: "weine", subcategory: "rotwein" },
+  // Obst
+  { category: "obst", subcategory: "kernobst" },
+  { category: "obst", subcategory: "steinobst" },
+  { category: "obst", subcategory: "beeren" },
+  { category: "obst", subcategory: "tropischefrüchte" },
+];
+
+// Extract unique categories and subcategories
+const categories = Array.from(new Set(productsData.map((p) => p.category)));
+const subcategoriesMap = productsData.reduce((acc, product) => {
+  if (!acc[product.category]) {
+    acc[product.category] = new Set();
+  }
+  acc[product.category].add(product.subcategory);
+  return acc;
+}, {});
+
 export default function AddProduct() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -11,13 +36,18 @@ export default function AddProduct() {
     description: "",
     category: "",
     subcategory: "",
-    price: "", // optional, if needed
+    price: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "category" && { subcategory: "" }), // Reset subcategory when category changes
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -94,35 +124,47 @@ export default function AddProduct() {
           ></textarea>
         </div>
 
-        {/* Category & Subcategory Fields Side by Side */}
+        {/* Category & Subcategory Dropdowns */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 font-medium">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Category"
               required
-            />
+            >
+              <option value="">Select Category</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block mb-1 font-medium">Subcategory</label>
-            <input
-              type="text"
+            <select
               name="subcategory"
               value={formData.subcategory}
               onChange={handleChange}
               className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Subcategory"
               required
-            />
+              disabled={!formData.category}
+            >
+              <option value="">Select Subcategory</option>
+              {formData.category &&
+                Array.from(subcategoriesMap[formData.category]).map((sub) => (
+                  <option key={sub} value={sub}>
+                    {sub.charAt(0).toUpperCase() + sub.slice(1)}
+                  </option>
+                ))}
+            </select>
           </div>
         </div>
 
-        {/* Optionally, you can include a price field here if needed */}
+        {/* Price Field */}
         <div>
           <label className="block mb-1 font-medium">Price (€)</label>
           <input
@@ -132,6 +174,7 @@ export default function AddProduct() {
             onChange={handleChange}
             className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
             placeholder="Enter price"
+            step="0.01"
           />
         </div>
 
